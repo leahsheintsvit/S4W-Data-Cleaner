@@ -15,6 +15,10 @@ cleaned_folder = dir / Path("Cleaned Data")
 shared_fields = ["msmt_datetime", "geopoint:Latitude", "geopoint:Longitude", "QCFlag"]
 shared_identifiers = ["*meta-instance-id*", "*meta-submission-date*", "_id", "deviceid", "AutoSiteID", "MonID", "collection"]
 
+nepal_lat_min = 26.35
+nepal_lat_max = 30.45
+nepal_lon_min = 80.00
+nepal_lon_max = 88.20
 
 
 def clean_raw():
@@ -48,6 +52,14 @@ def clean_raw():
             errors="coerce"
         )
 
+        # Remove entries outside of Nepal's bounding box
+        clean_data = data[
+            (
+                data["geopoint:Latitude"].between(nepal_lat_min, nepal_lat_max) & 
+                data["geopoint:Longitude"].between(nepal_lon_min, nepal_lat_max)
+            )
+        ].copy()
+
         clean_data = data.dropna(subset=["msmt_datetime"]).copy()
         clean_data = clean_data[final_columns]
         clean_data = clean_data.sort_values(by='msmt_datetime', ascending=False)
@@ -65,11 +77,4 @@ def clean_raw():
         print(f"New file created: {save_path}")
         print(f"{len(data) - len(clean_data)} invalid entries removed.")
 
-if len(sys.argv) < 2:
-    sys.exit("No arguments provided.")
-
-command = sys.argv[1]
-args = sys.argv[2:]
-
-if (command == "clean"):
-    clean_raw()
+clean_raw()
