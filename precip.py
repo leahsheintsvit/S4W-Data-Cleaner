@@ -187,7 +187,6 @@ def create_monthly_summaries():
 
             all_monthly_summaries = pd.concat([all_monthly_summaries, monthly_summary], ignore_index = True)
 
-    all_monthly_summaries["mean_daily_precip_mm"] = all_monthly_summaries["mean_daily_precip_mm"] / all_monthly_summaries["total_sites"]
     all_monthly_summaries["total_expected_precip_mm"] = all_monthly_summaries["mean_daily_precip_mm"] * all_monthly_summaries["days_in_month"]
 
     all_monthly_summaries = all_monthly_summaries.drop(columns=["days_in_month", "total_precip_mm", "total_days_measured"])
