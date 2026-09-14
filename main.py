@@ -11,6 +11,7 @@ dir = pathlib.Path().resolve()
 now = dt.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
 raw_folder = dir / Path("Raw Data")
 cleaned_folder = dir / Path("Cleaned Data")
+backup_folder = dir / Path("Backup")
 
 shared_fields = ["msmt_datetime", "geopoint:Latitude", "geopoint:Longitude", "QCFlag"]
 shared_identifiers = ["*meta-instance-id*", "*meta-submission-date*", "_id", "deviceid", "AutoSiteID", "MonID", "collection"]
@@ -28,14 +29,10 @@ def clean_raw():
     files = [f.name for f in Path(raw_folder).iterdir() if f.is_file()]
     print(str(len(files)) + ' files found.')
 
-    all_data = pd.DataFrame()
-
-    invalid_entries = 0
-
     for file in files:
         csv_path = os.path.join(raw_folder, file)
 
-        data = pd.read_csv(csv_path, low_memory=False)
+        data = try_read(csv_path)
 
         data_columns = data.columns.values.tolist()
 
@@ -66,15 +63,35 @@ def clean_raw():
 
         save_path = cleaned_folder / Path(file.split(".", 1)[0] + "-cleaned.csv")
 
-        try:
-            clean_data.to_csv(save_path, index = False)
-
-        except Exception as e:
-            print(f"Failed to write to path: {save_path}. Is this file open in Excel?")
-
-            continue
+        try_save(clean_data, save_path)
         
         print(f"New file created: {save_path}")
         print(f"{len(data) - len(clean_data)} invalid entries removed.")
+
+def try_save(df, path):
+    try:
+        df.to_csv(path, index = False)
+    except Exception as e:
+        print(f"Failed to save to path: {path}")
+        backup_csv(df)
+        sys.exit()
+
+def try_read(path):
+    try:
+        df = pd.read_csv(path, low_memory=False)
+        return df
+    except Exception as e:
+        print(f"Failed to read file at path: {path}")
+        sys.exit()
+
+def backup_csv(df):
+    now = dt.datetime.now().strftime(format="%d%m%Y%H%M%S")
+    backup_path = backup_folder / Path(f"backup-{now}.csv")
+
+    try:
+        df.to_csv(backup_path, index = False)
+        print(f"Backup created: {backup_path}")
+    except Exception as e:
+        print(f"Backup failed: {e}")
 
 clean_raw()
