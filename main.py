@@ -88,7 +88,12 @@ def clean_ground():
 
     site_info = (
         site_info
-        .drop(columns=["Site_IDs", "Data-Range", "Corresponding DHM station"])
+        .drop(columns=["Site_IDs"])
+    )
+
+    to_merge = (
+        site_info
+        .drop(columns=["Location", "District", "Watershed", "Purpose", "Landuse", "Status", "Data-Range", "Corresponding DHM station"])
     )
 
     # Merged groundwater data from S4W Nepal
@@ -100,10 +105,12 @@ def clean_ground():
     dated_columns = [column for column in all_data.columns if column not in fields]
 
     entries = []
+    new_info = []
 
     for _, entry in all_data.iterrows():
 
         gw_id = entry["GW_ID"]
+        msmt_count = 0
 
         for i in range(len(dated_columns)):
 
@@ -114,13 +121,18 @@ def clean_ground():
                 year = dated_columns[i].split("_")[0]
                 month = dated_columns[i].split("_")[1]
 
+                msmt_count += 1
+
                 new_entry = {"GW_ID": gw_id, "Year": year, "Month": month, "GW_msmt": msmt}
                 entries.append(new_entry)
+
+        info_line = {"GW_ID": gw_id, "Total": msmt_count}
+        new_info.append(info_line)
 
     all_output = pd.DataFrame(entries)
 
     all_output = (
-        pd.merge(all_output, site_info, on="GW_ID", how="inner")
+        pd.merge(all_output, to_merge, on="GW_ID", how="inner")
         .sort_values(by=["Year", "Month", "GW_ID"], ascending=True)
     )
 
@@ -144,8 +156,15 @@ def clean_ground():
         .reset_index()
     )
 
-    tabs = [all_output, yearly_monthly_avg, all_time_monthly_average]
-    tab_names = ["Full Data", "Yearly Averages", "All-Time Averages"]
+    new_info_df = pd.DataFrame(new_info)
+    
+    site_info = (
+        pd.merge(site_info, new_info_df, on="GW_ID", how="inner")
+        .sort_values(by="GW_ID")
+    )
+
+    tabs = [all_data, all_output, yearly_monthly_avg, all_time_monthly_average, site_info]
+    tab_names = ["Raw Data", "Cleaned Data", "Yearly Averages", "All-Time Averages", "Site Info"]
 
     try_save_tabs(tabs, tab_names, clean_ground_path)
 
