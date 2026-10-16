@@ -10,9 +10,15 @@ from file_manager import raw_folder, cleaned_folder, backup_folder
 
 dir = pathlib.Path().resolve()
 
-raw_folder = dir / Path("Raw Data")
-cleaned_folder = dir / Path("Cleaned Data")
-backup_folder = dir / Path("Backup")
+data_folder = dir / Path("data")
+raw_folder = data_folder / Path("raw")
+cleaned_folder = data_folder / Path("cleaned")
+
+app_folder = dir / Path("app")
+script_folder = dir / Path("scripts")
+page_folder = dir / Path("pages")
+
+backup_folder = dir / Path("backup")
 
 surface_path = raw_folder / Path("Flow_SW_DB.xlsx")
 ground_path = raw_folder / Path("GW New Database.xlsx")
@@ -21,6 +27,11 @@ precip_path = raw_folder / Path("Precip_Database_2025.xlsx")
 clean_surface_path = cleaned_folder / Path("Flow_SW_Clean.xlsx")
 clean_ground_path = cleaned_folder / Path("GW_Clean.xlsx")
 clean_precip_path = cleaned_folder / Path("Precip_2025_Clean.xlsx")
+
+# • List all stations by dataset (ID, name, lat/lon, elevation, watershed, start/end date, time step)
+# • Define dashboard users (S4W team, researchers)
+# • Sketch page layout (Home, Temporal, Spatial, Integrated, Data/Download)
+# • Set up GitHub repo, Python environment (requirements.txt), folder structure (data/raw, data/clean, app/pages)
 
 def clean_surface(): 
     print(f"Reading surface flow database: {surface_path}")
