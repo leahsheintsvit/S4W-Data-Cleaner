@@ -1,0 +1,6 @@
+This database contains the groundwater level data from 2017-2025
+"The database is prepared yearwise, in which the monthly groundwater level data is entered for each site"
+This database also has a RP to GS value which is subtracted from the observed value to get the true depth to water table 
+This dataset also tracks any changes in the RP to GS values. 
+"Finally, after subtracting the RP to GS value, a merged sheet is prepred which contains the monthly data for all the sites and all the years"
+This dataset is also semiautomated similar to the precipitation one.

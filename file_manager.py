@@ -122,9 +122,10 @@ def backup_csv(df):
 
     backup_path = backup_folder / Path(f"backup-{now()}.csv")
 
-    if backup_path.exists():
-        time.sleep(0.05)
-        backup_path = backup_folder / Path(f"backup-{now()}.csv")
+    i = 0
+    while backup_path.exists():
+        i += 1
+        backup_path = backup_folder / Path(f"backup-{now()}({i}).csv")
 
     try:
         df.to_csv(backup_path, index = False)
