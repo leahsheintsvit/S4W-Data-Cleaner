@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>S4W Nepal Flood Repository</title>
+
+    <!-- Leaflet map styling -->
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f7fa;
+        }
+
+        header {
+            background: #155e75;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 25px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        #map {
+            height: 450px;
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>S4W Nepal Flood Event Repository</h1>
+        <p>Interactive Flood Mapping and Documentation</p>
+    </header>
+
+    <main>
+        <div class="card">
+            <h2>About This Project</h2>
+            <p>
+                This website will document flood events
+                and supporting evidence in Nepal.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>Interactive Flood Map</h2>
+            <div id="map"></div>
+            <p>
+                Explore Kathmandu Valley using the
+                interactive map below.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>Flood Event Information</h2>
+            <p>
+                Verified flood event records, dates,
+                photos, and evidence will be added here.
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        S4W Nepal | WPI Student Project
+    </footer>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Create a map centered on Kathmandu
+        const map = L.map('map').setView(
+            [27.7172, 85.3240], 11
+        );
+
+        // Add OpenStreetMap map tiles
+        L.tileLayer(
+            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {
+                attribution: '&copy; OpenStreetMap contributors'
+            }
+        ).addTo(map);
+
+        // Example location marker (NOT a verified flood event)
+        L.marker([27.7172, 85.3240])
+            .addTo(map)
+            .bindPopup(
+                '<b>Kathmandu</b><br>Example map marker'
+            );
+    </script>
+
+</body>
+</html>
