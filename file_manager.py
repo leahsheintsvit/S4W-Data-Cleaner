@@ -9,8 +9,9 @@ import time
 
 dir = pathlib.Path().resolve()
 
-raw_folder = dir / Path("Raw Data")
-cleaned_folder = dir / Path("Cleaned Data")
+data_folder = dir / Path("data")
+raw_folder = data_folder / Path("raw")
+cleaned_folder = data_folder / Path("clean")
 backup_folder = dir / Path("Backup")
 
 def now():
@@ -71,13 +72,13 @@ def try_save(df, path):
 
         new_file = not path.exists()
 
-        if path.exists():
+        #if path.exists():
 
-            overwrite = input(f"Permission to overwrite file at path: {(str(path).replace(str(dir), ""))}? (y/n) ")
+            #overwrite = input(f"Permission to overwrite file at path: {(str(path).replace(str(dir), ""))}? (y/n) ")
 
-            if overwrite.lower() != "y":
-                print("Save operation canceled.")
-                sys.exit()
+            #if overwrite.lower() != "y":
+            #    print("Save operation canceled.")
+            #    sys.exit()
 
         if type == "xlsx":
             df.to_excel(path, index = False)
