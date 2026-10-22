@@ -365,6 +365,42 @@
         // Example location marker (NOT a verified flood event)
         
 
+        // Load municipality boundaries from OpenStreetMap
+        fetch("data/geojson/kathmandu_municipalities.geojson")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Could not load municipality GeoJSON file");
+                }
+                return response.json();
+            })
+            .then(data => {
+                L.geoJSON(data, {
+                    style: {
+                        color: "#8b5cf6",
+                        weight: 2,
+                        opacity: 0.8,
+                        fillOpacity: 0.03
+                    },
+                    onEachFeature: function(feature, layer) {
+                        const properties = feature.properties || {};
+                        const name =
+                            properties["name:en"] ||
+                            properties.name ||
+                            "Unnamed administrative area";
+
+                        layer.bindPopup(
+                            "<strong>Administrative area:</strong> " +
+                            name
+                        );
+                    }
+                }).addTo(map);
+
+                console.log("Municipality boundaries loaded successfully");
+            })
+            .catch(error => {
+                console.error("Error loading municipality boundaries:", error);
+            });
+
 let floodEvents = [];
 
 // Add a marker for every demonstration record
