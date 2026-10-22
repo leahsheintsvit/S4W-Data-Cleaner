@@ -84,6 +84,29 @@
             padding: 20px;
             color: #555;
         }
+        
+.streamflow-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.streamflow-table th,
+.streamflow-table td {
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    text-align: left;
+}
+
+.streamflow-table th {
+    background-color: #155e75;
+    color: white;
+}
+
+.streamflow-table tbody tr:nth-child(even) {
+    background-color: #eef5f7;
+}
+
     </style>
 </head>
 
@@ -98,8 +121,32 @@
         <div class="card">
             <h2>About This Project</h2>
             <p>
-                This website will document flood events
-                and supporting evidence in Nepal.
+<p>
+    The S4W Nepal Flood Event Repository is an interactive
+    platform designed to organize, document, and visualize
+    flood events in Nepal.
+</p>
+
+<p>
+    This prototype combines documented flood information
+    from Nepal's Department of Hydrology and Meteorology
+    (DHM) with streamflow observations from the S4W
+    cleaned flow dataset.
+</p>
+
+<p>
+    The repository currently includes the September
+    27–29, 2024 Kathmandu Valley flood event, along
+    with demonstration records used to test the map,
+    filters, and timeline.
+</p>
+
+<p>
+    Future development will focus on incorporating
+    additional flood events, verified geographic
+    information, and groundwater data.
+</p>
+ 
             </p>
         </div>
 
@@ -168,6 +215,102 @@
     </p>
 
     <div id="eventTimeline"></div>
+</div>
+
+<div class="card">
+    <h2>S4W Streamflow Data Summary</h2>
+
+    <p>
+        Streamflow observations were extracted from the
+        S4W cleaned flow dataset (Flow_SW_Clean) to provide
+        hydrological context for the September 27–29, 2024
+        Kathmandu Valley flood event.
+    </p>
+
+    <h3>September 26, 2024 Observations</h3>
+
+<table class="streamflow-table">
+    <thead>
+        <tr>
+            <th>Site ID</th>
+            <th>Streamflow (m³/s)</th>
+            <th>Water Level (m)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>HM01</td>
+            <td>0.2043</td>
+            <td>0.43</td>
+        </tr>
+        <tr>
+            <td>MH01</td>
+            <td>0.8094</td>
+            <td>Not recorded</td>
+        </tr>
+    </tbody>
+</table>
+
+        
+
+    <p>
+        <strong>Data interpretation:</strong>
+        These observations were collected one day before
+        the documented flood period. They provide
+        pre-flood context but do not independently confirm
+        flooding or describe peak flood conditions.
+    </p>
+
+    <p>
+        <strong>Source:</strong>
+        S4W cleaned flow dataset (Flow_SW_Clean).
+    </p>
+</div>
+
+<div class="card">
+    <h2>Data Sources & Methodology</h2>
+
+    <h3>1. S4W Streamflow Data</h3>
+    <p>
+        Streamflow observations were extracted from the
+        S4W cleaned flow dataset (Flow_SW_Clean).
+        Measurements from September 26, 2024, provide
+        pre-flood hydrological context.
+    </p>
+
+    <h3>2. Government Flood Documentation</h3>
+    <p>
+        The September 27–29, 2024 flood event was
+        documented using a situational report from
+        Nepal's Department of Hydrology and Meteorology
+        (DHM).
+    </p>
+
+    <p>
+        <a href="https://dhm.gov.np/uploads/dhm/downloads/Situational_Report_on_Extreme_Precipitation_and_Flooding_Event_of_27-29_September_2024.pdf"
+           target="_blank"
+           rel="noopener noreferrer">
+            View DHM Flood Report
+        </a>
+    </p>
+
+    <h3>3. Map Visualization</h3>
+    <p>
+        The interactive map uses Leaflet and OpenStreetMap.
+        The Kathmandu reference circle is illustrative
+        and does not represent a verified flood boundary.
+        Three demonstration markers are included to test
+        the website's functionality.
+    </p>
+
+    <h3>4. Current Data Limitations</h3>
+    <p>
+        The available September 26 streamflow observations
+        do not establish flood conditions during
+        September 27–29. Groundwater measurements and
+        verified flood extent data have not yet been
+        incorporated into the repository.
+    </p>
 </div>
 
     </main>
@@ -330,7 +473,6 @@ marker.bindPopup(
 );
 
 markers.push(marker);
-
 
 });
 
