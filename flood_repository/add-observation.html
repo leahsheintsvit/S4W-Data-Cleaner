@@ -1,0 +1,284 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Flood Observation | S4W Nepal</title>
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fa;
+            margin: 0;
+            color: #243746;
+        }
+
+        header {
+            background: #155e75;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        main {
+            max-width: 760px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 28px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 18px;
+            margin-bottom: 6px;
+        }
+
+        input, select, textarea {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font: inherit;
+        }
+
+        textarea {
+            min-height: 100px;
+        }
+
+        button {
+            background: #155e75;
+            color: white;
+            border: none;
+            padding: 13px 22px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 22px;
+        }
+
+        button:hover {
+            background: #0e4556;
+        }
+
+        .notice {
+            background: #eef5f7;
+            padding: 14px;
+            border-radius: 6px;
+            line-height: 1.5;
+        }
+
+        a {
+            color: #155e75;
+        }
+        /* Interactive location picker */
+
+#locationPicker {
+    height: 350px;
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 12px;
+    border: 1px solid #cbd5e1;
+}
+
+.location-help {
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.5;
+}
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Add Flood Observation</h1>
+    <p>S4W Nepal Flood Event Repository</p>
+</header>
+
+<main>
+    <div class="card">
+
+        <p><a href="index.html">← Back to Flood Map</a></p>
+
+        <div class="notice">
+            <strong>Staff form prototype</strong>
+            <p>
+                This page is currently a local form preview.
+                It does not upload or publish information yet.
+                Staff authentication and secure submission
+                storage will be added before deployment.
+            </p>
+        </div>
+
+        <form id="observationForm">
+
+            <label for="eventName">Flood Event Name</label>
+            <input id="eventName" name="eventName"
+                   placeholder="Example: September 2024 Floods"
+                   required>
+
+            <label for="date">Observation Date</label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="river">River Name</label>
+            <input id="river" name="river"
+                   placeholder="Example: Hanumante"
+                   required>
+
+            <label for="watershed">Watershed</label>
+            <input id="watershed" name="watershed"
+                   placeholder="Enter watershed name if known">
+
+            <label for="location">Location Name</label>
+            <input id="location" name="location"
+                   placeholder="Village, neighborhood, or landmark"
+                   required>
+            <label>Select Flood Location on Map</label>
+
+            <p class="location-help">
+                Click the map to select the location where the flood
+                was observed. The latitude and longitude fields below
+                will fill automatically.
+            </p>
+
+            <div id="locationPicker"></div>
+
+            <label for="latitude">Latitude</label>
+            <input type="number" id="latitude" name="latitude"
+                   step="any" min="-90" max="90"
+                   placeholder="Example: 27.7000"
+                   required>
+
+            <label for="longitude">Longitude</label>
+            <input type="number" id="longitude" name="longitude"
+                   step="any" min="-180" max="180"
+                   placeholder="Example: 85.3200"
+                   required>
+
+            <label for="description">Flood Description</label>
+            <textarea id="description" name="description"
+                      placeholder="Describe what happened..."
+                      required></textarea>
+
+            <label for="impact">Reported Impacts</label>
+            <textarea id="impact" name="impact"
+                      placeholder="Road damage, homes affected, agricultural impacts..."></textarea>
+
+            <label for="photo">Flood Photograph</label>
+            <input type="file" id="photo" name="photo"
+                   accept="image/jpeg,image/png,image/webp">
+
+            <label for="photoCredit">Photographer / Source Credit</label>
+            <input id="photoCredit" name="photoCredit"
+                   placeholder="Name or organization">
+
+            <label for="sourceUrl">Supporting Source URL</label>
+            <input type="url" id="sourceUrl" name="sourceUrl"
+                   placeholder="https://...">
+
+            <label for="permissionStatus">Photo Publication Permission</label>
+            <select id="permissionStatus" name="permissionStatus">
+                <option value="pending">Pending review</option>
+                <option value="approved">Permission confirmed</option>
+            </select>
+
+            <button type="submit">
+                Preview Observation
+            </button>
+
+        </form>
+
+        <div id="result" aria-live="polite"></div>
+
+    </div>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // ==========================================
+// S4W Flood Observation Location Picker
+// ==========================================
+
+const locationMap = L.map("locationPicker").setView(
+    [27.7172, 85.3240],
+    11
+);
+
+L.tileLayer(
+    "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+        attribution: "&copy; OpenStreetMap contributors"
+    }
+).addTo(locationMap);
+
+let selectedLocationMarker = null;
+
+const latitudeInput = document.getElementById("latitude");
+const longitudeInput = document.getElementById("longitude");
+
+locationMap.on("click", function(event) {
+    const latitude = event.latlng.lat;
+    const longitude = event.latlng.lng;
+
+    latitudeInput.value = latitude.toFixed(6);
+    longitudeInput.value = longitude.toFixed(6);
+
+    if (selectedLocationMarker) {
+        locationMap.removeLayer(selectedLocationMarker);
+    }
+
+    selectedLocationMarker = L.marker(
+        [latitude, longitude]
+    ).addTo(locationMap);
+
+    selectedLocationMarker.bindPopup(
+        "Selected flood observation location"
+    ).openPopup();
+});
+    const form = document.getElementById("observationForm");
+    const result = document.getElementById("result");
+
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        if (!form.reportValidity()) return;
+
+        const data = new FormData(form);
+
+        const eventName = data.get("eventName");
+        const river = data.get("river");
+        const location = data.get("location");
+        const date = data.get("date");
+
+        result.replaceChildren();
+
+        const heading = document.createElement("h3");
+        heading.textContent = "Observation Preview";
+
+        const message = document.createElement("p");
+        message.textContent =
+            eventName + " — " + river +
+            " River, " + location + " (" + date + ")";
+
+        const note = document.createElement("p");
+        note.textContent =
+            "Preview only. No observation or photograph has been uploaded.";
+
+        result.append(heading, message, note);
+    });
+</script>
+
+</body>
+</html>

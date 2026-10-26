@@ -15,7 +15,43 @@
 
 
     <style>
-        
+
+    /* Staff observation entry link */
+
+.add-observation-link {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 12px 20px;
+    background-color: white;
+    color: #155e75;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.add-observation-link:hover {
+    background-color: #e2e8f0;
+}
+     /* Flood observation photo popups */
+
+.flood-observation-popup {
+    min-width: 220px;
+    max-width: 320px;
+}
+
+.flood-observation-popup h3 {
+    color: #155e75;
+    margin: 0 0 10px;
+}
+
+.flood-observation-popup p {
+    margin: 6px 0;
+    line-height: 1.4;
+}
+
+.flood-observation-popup img {
+    display: block;
+}   
 .event-item {
     background-color: #f4f7fa;
     border-left: 5px solid #155e75;
@@ -72,6 +108,72 @@
             border-radius: 10px;
             margin-bottom: 20px;
         }
+        /* Flood map filters */
+.map-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    margin: 15px 0 20px;
+}
+
+.map-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.map-filter label {
+    font-weight: bold;
+    color: #155e75;
+}
+
+.map-filter select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: white;
+}
+
+@media (max-width: 600px) {
+    .map-filters {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Watershed and River Filter Layout */
+
+.map-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.map-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.map-filter label {
+    font-weight: bold;
+    color: #155e75;
+}
+
+.map-filter select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background-color: white;
+}
+
+@media (max-width: 600px) {
+    .map-filters {
+        grid-template-columns: 1fr;
+    }
+}
 
         #map {
             height: 450px;
@@ -84,8 +186,7 @@
             padding: 20px;
             color: #555;
         }
-        
-.streamflow-table {
+        .streamflow-table {
     width: 100%;
     border-collapse: collapse;
     margin: 15px 0;
@@ -113,15 +214,18 @@
 <body>
 
     <header>
-        <h1>S4W Nepal Flood Event Repository</h1>
-        <p>Interactive Flood Mapping and Documentation</p>
-    </header>
+    <h1>S4W Nepal Flood Event Repository</h1>
+    <p>Interactive Flood Mapping and Documentation</p>
+
+    <a href="add-observation.html" class="add-observation-link">
+        + Add Flood Observation
+    </a>
+</header>
 
     <main>
         <div class="card">
             <h2>About This Project</h2>
-            <p>
-<p>
+            
     The S4W Nepal Flood Event Repository is an interactive
     platform designed to organize, document, and visualize
     flood events in Nepal.
@@ -147,47 +251,86 @@
     information, and groundwater data.
 </p>
  
-            </p>
         </div>
-
-        <div class="card">
-            <h2>Interactive Flood Map</h2>
-            
-<label for="locationFilter">
-    <strong>Filter by Location:</strong>
-</label>
-
-<select id="locationFilter">
-    <option value="all">All Locations</option>
-    <option value="Kathmandu">Kathmandu</option>
-    <option value="Lalitpur">Lalitpur</option>
-    <option value="Bhaktapur">Bhaktapur</option>
-    <option value="Kathmandu Valley">Kathmandu Valley (Regional)</option>
-</select>
-
-<label for="evidenceFilter">
-    <strong>Filter by Evidence Type:</strong>
-</label>
-
-<select id="evidenceFilter">
-    <option value="all">All Evidence Types</option>
-    <option value="Field Observation">Field Observation</option>
-    <option value="Photo">Photo</option>
-    <option value="Video">Video</option>
-    <option value="Government Report">Government Report</option>
-    <option value="Not provided">Not provided</option>
-</select>
-
-<p id="eventCount"></p>
-
-            <div id="map"></div>
-            <p>
-                Explore Kathmandu Valley using the
-                interactive map below.
-            </p>
-        </div>
-
         
+<!-- Interactive Flood Map -->
+<div class="card">
+    <h2>Interactive Flood Map</h2>
+
+    <p>
+        Explore flood observations across Kathmandu Valley.
+        Filter by watershed, river, location, or evidence type.
+    </p>
+
+    <div class="map-filters">
+
+        <!-- Watershed Filter -->
+        <div class="map-filter">
+            <label for="watershedFilter">
+                Filter by Watershed
+            </label>
+            <select id="watershedFilter">
+                <option value="all">All Watersheds</option>
+            </select>
+        </div>
+
+        <!-- River Filter -->
+        <div class="map-filter">
+            <label for="riverFilter">
+                Filter by River
+            </label>
+            <select id="riverFilter">
+                <option value="all">All Rivers</option>
+            </select>
+        </div>
+
+        <!-- Location Filter -->
+        <div class="map-filter">
+            <label for="locationFilter">
+                Filter by Location
+            </label>
+            <select id="locationFilter">
+                <option value="all">All Locations</option>
+                <option value="Kathmandu">Kathmandu</option>
+                <option value="Lalitpur">Lalitpur</option>
+                <option value="Bhaktapur">Bhaktapur</option>
+                <option value="Kathmandu Valley">
+                    Kathmandu Valley (Regional)
+                </option>
+            </select>
+        </div>
+
+        <!-- Evidence Type Filter -->
+        <div class="map-filter">
+            <label for="evidenceFilter">
+                Filter by Evidence Type
+            </label>
+            <select id="evidenceFilter">
+                <option value="all">All Evidence Types</option>
+                <option value="Field Observation">Field Observation</option>
+                <option value="Photo">Photo</option>
+                <option value="Video">Video</option>
+                <option value="Government Report">Government Report</option>
+                <option value="Not provided">Not provided</option>
+            </select>
+        </div>
+
+    </div>
+
+    <!-- Number of matching event records -->
+    <p id="eventCount"></p>
+
+    <!-- Interactive Leaflet Map -->
+    <div id="map"></div>
+
+    <p>
+        Click a flood observation marker to explore
+        photographs, locations, dates, and reported impacts.
+        Watershed and river filters will populate as
+        approved observations are added.
+    </p>
+</div>
+
 <div class="card">
     <h2>Flood Event Information</h2>
 <p>
@@ -204,6 +347,27 @@
 </button>
 
     <div id="eventList"></div>
+</div>
+
+<div class="card">
+    <h2>Flood Evidence Repository</h2>
+
+    <p>
+        Explore verified photographs, videos, and field
+        observations associated with documented flood events.
+    </p>
+
+    <label for="evidenceEventFilter">
+        <strong>Select Flood Event:</strong>
+    </label>
+
+    <select id="evidenceEventFilter">
+        <option value="all">All Flood Events</option>
+    </select>
+
+    <div id="evidenceList">
+        <p>No approved flood evidence has been uploaded yet.</p>
+    </div>
 </div>
 
 <div class="card">
@@ -401,7 +565,157 @@
                 console.error("Error loading municipality boundaries:", error);
             });
 
+        // Load approved flood evidence from GeoJSON
+        const evidenceLayer = L.geoJSON(null, {
+            pointToLayer: function(feature, latlng) {
+                return L.marker(latlng);
+            },
+            onEachFeature: function(feature, layer) {
+                const properties = feature.properties || {};
+
+                const title = document.createElement("strong");
+                title.textContent =
+                    properties.description || "Flood evidence";
+
+                const popup = document.createElement("div");
+                popup.appendChild(title);
+
+                const details = document.createElement("p");
+                details.textContent =
+                    "Type: " + (properties.evidence_type || "Not specified") +
+                    " | Date: " + (properties.observed_date || "Unknown");
+
+                popup.appendChild(details);
+                layer.bindPopup(popup);
+            }
+        }).addTo(map);
+
+        fetch("./data/evidence.geojson")
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error("Could not load evidence.geojson");
+                }
+                return response.json();
+            })
+            .then(function(data) {
+                
+const publicEvidence = {
+    type: "FeatureCollection",
+    features: (data.features || []).filter(function(feature) {
+        return feature.properties?.verification_status === "approved" &&
+               feature.properties?.publication_consent === true;
+    })
+};
+
+evidenceLayer.addData(publicEvidence);
+
+                approvedEvidence = (data.features || []).filter(function(feature) {
+                    return feature.properties?.verification_status === "approved" &&
+                        feature.properties?.publication_consent === true;
+                });
+
+                displayEvidence();
+
+                console.log("Approved flood evidence loaded successfully");
+            })
+            .catch(function(error) {
+                console.error("Error loading flood evidence:", error);
+            });
+
+
 let floodEvents = [];
+
+let approvedEvidence = [];
+
+function displayEvidence() {
+    const selectedEvent =
+        document.getElementById("evidenceEventFilter").value;
+
+    const evidenceList =
+        document.getElementById("evidenceList");
+
+    evidenceList.innerHTML = "";
+
+    const filteredEvidence = approvedEvidence.filter(function(feature) {
+        return selectedEvent === "all" ||
+            feature.properties?.eventId === selectedEvent;
+    });
+    
+    // Update map markers to match the selected flood event
+    evidenceLayer.clearLayers();
+
+    evidenceLayer.addData({
+        type: "FeatureCollection",
+        features: filteredEvidence
+    });
+
+
+    if (filteredEvidence.length === 0) {
+        evidenceList.textContent =
+            "No approved evidence is available for this flood event yet.";
+        return;
+    }
+
+    filteredEvidence.forEach(function(feature) {
+        const properties = feature.properties || {};
+
+        const item = document.createElement("div");
+        item.className = "event-item";
+
+        const title = document.createElement("h3");
+        title.textContent =
+            properties.description || "Flood evidence";
+
+        const details = document.createElement("p");
+        details.textContent =
+            "Type: " + (properties.evidence_type || "Not specified") +
+            " | Date: " + (properties.observed_date || "Unknown");
+
+if (properties.photoUrl) {
+    const photo = document.createElement("img");
+    photo.src = properties.photoUrl;
+    photo.alt = properties.description || "Flood evidence photograph";
+    photo.loading = "lazy";
+    photo.style.maxWidth = "100%";
+    photo.style.maxHeight = "300px";
+    photo.style.borderRadius = "6px";
+    photo.style.marginTop = "10px";
+
+if (properties.videoUrl) {
+    const video = document.createElement("video");
+    video.src = properties.videoUrl;
+    video.controls = true;
+    video.preload = "metadata";
+    video.style.maxWidth = "100%";
+    video.style.maxHeight = "300px";
+    video.style.borderRadius = "6px";
+    video.style.marginTop = "10px";
+
+    item.appendChild(video);
+}
+
+if (properties.sourceUrl) {
+    const source = document.createElement("a");
+    source.href = properties.sourceUrl;
+    source.textContent = "View Supporting Source";
+    source.target = "_blank";
+    source.rel = "noopener noreferrer";
+    source.style.display = "block";
+    source.style.marginTop = "10px";
+
+    item.appendChild(source);
+}
+
+    item.appendChild(photo);
+}
+
+        item.append(title, details);
+        evidenceList.appendChild(item);
+    });
+}
+
+document.getElementById("evidenceEventFilter")
+    .addEventListener("change", displayEvidence);
 
 // Add a marker for every demonstration record
 
@@ -498,6 +812,18 @@ displayTimeline(filteredEvents);
     filteredEvents.forEach(function(event) {
        
  
+// Only create map markers for events with valid coordinates
+if (
+    !Number.isFinite(event.latitude) ||
+    !Number.isFinite(event.longitude) ||
+    event.latitude < -90 ||
+    event.latitude > 90 ||
+    event.longitude < -180 ||
+    event.longitude > 180
+) {
+    return;
+}
+
 const isRegionalReference = Boolean(event.coordinateNote);
 
 let marker;
@@ -654,6 +980,25 @@ fetch("./data/events.json")
     })
     .then(function(data) {
         floodEvents = data;
+        
+        // Populate the evidence dropdown from events.json
+        const evidenceEventFilter =
+            document.getElementById("evidenceEventFilter");
+
+        evidenceEventFilter.innerHTML =
+            '<option value="all">All Flood Events</option>';
+
+        floodEvents
+            .filter(function(event) {
+                return !event.eventId.startsWith("DEMO-");
+            })
+            .forEach(function(event) {
+                const option = document.createElement("option");
+                option.value = event.eventId;
+                option.textContent = event.name;
+                evidenceEventFilter.appendChild(option);
+            });
+
         displayEvents();
     })
     .catch(function(error) {
@@ -754,8 +1099,9 @@ document.getElementById("downloadCsvBtn").addEventListener("click", function() {
 
     URL.revokeObjectURL(url);
 });
-
-    </script>
-
+</script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="flood_observations.js"></script>
+<script src="json_observations.js"></script>
 </body>
 </html>
