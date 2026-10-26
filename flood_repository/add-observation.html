@@ -97,6 +97,45 @@
     font-size: 14px;
     line-height: 1.5;
 }
+
+/* ==========================================
+   S4W Mobile Form Improvements
+   ========================================== */
+
+@media (max-width: 600px) {
+
+    header {
+        padding: 20px 15px;
+    }
+
+    header h1 {
+        font-size: 24px;
+    }
+
+    main {
+        margin: 15px auto;
+        padding: 0 12px;
+    }
+
+    .card {
+        padding: 18px;
+        border-radius: 8px;
+    }
+
+    #locationPicker {
+        height: 280px;
+    }
+
+    input, select, textarea {
+        font-size: 16px;
+    }
+
+    button {
+        width: 100%;
+        min-height: 48px;
+    }
+}
+
     </style>
 </head>
 
@@ -176,9 +215,25 @@
             <textarea id="impact" name="impact"
                       placeholder="Road damage, homes affected, agricultural impacts..."></textarea>
 
-            <label for="photo">Flood Photograph</label>
-            <input type="file" id="photo" name="photo"
-                   accept="image/jpeg,image/png,image/webp">
+            
+<label for="photo">Flood Photograph</label>
+<input type="file" id="photo" name="photo"
+       accept="image/jpeg,image/png,image/webp">
+
+<div id="photoPreviewContainer"
+     style="display:none; margin-top:15px;">
+
+    <p><strong>Selected Photograph Preview</strong></p>
+
+    <img id="photoPreview"
+         alt="Preview of selected flood photograph"
+         style="max-width:100%; max-height:300px;
+                border-radius:8px; object-fit:contain;">
+
+    <p id="photoFileName"
+       class="location-help"></p>
+</div>
+
 
             <label for="photoCredit">Photographer / Source Credit</label>
             <input id="photoCredit" name="photoCredit"
@@ -414,6 +469,61 @@ form.addEventListener("submit", function(event) {
         behavior: "smooth",
         block: "start"
     });
+});
+
+// ==========================================
+// S4W Photograph Preview
+// ==========================================
+
+const photoInput = document.getElementById("photo");
+const photoPreviewContainer =
+    document.getElementById("photoPreviewContainer");
+const photoPreview = document.getElementById("photoPreview");
+const photoFileName = document.getElementById("photoFileName");
+
+let currentPhotoURL = null;
+
+photoInput.addEventListener("change", function() {
+    if (currentPhotoURL) {
+        URL.revokeObjectURL(currentPhotoURL);
+        currentPhotoURL = null;
+    }
+
+    photoPreview.removeAttribute("src");
+    photoPreviewContainer.style.display = "none";
+    photoFileName.textContent = "";
+
+    const file = photoInput.files[0];
+    if (!file) return;
+
+    const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ];
+
+    if (
+        !allowedTypes.includes(file.type) ||
+        file.size > 10 * 1024 * 1024
+    ) {
+        photoInput.value = "";
+        alert(
+            "Please choose a JPEG, PNG, or WebP image " +
+            "smaller than 10 MB."
+        );
+        return;
+    }
+
+    currentPhotoURL = URL.createObjectURL(file);
+    photoPreview.src = currentPhotoURL;
+    photoFileName.textContent = file.name;
+    photoPreviewContainer.style.display = "block";
+});
+
+window.addEventListener("pagehide", function() {
+    if (currentPhotoURL) {
+        URL.revokeObjectURL(currentPhotoURL);
+    }
 });
 
 </script>
