@@ -7,15 +7,25 @@ let approvedObservations = [];
 const watershedFilter = document.getElementById("watershedFilter");
 const riverFilter = document.getElementById("riverFilter");
 
+
 function populateObservationFilters() {
+    const csvRecords = approvedObservations;
+
+    const jsonRecords =
+        typeof approvedJsonObservations !== "undefined"
+            ? approvedJsonObservations
+            : [];
+
+    const allRecords = [...csvRecords, ...jsonRecords];
+
     function fillDropdown(select, field, defaultLabel) {
         if (!select) return;
 
         const previousValue = select.value;
 
         const names = [...new Set(
-            approvedObservations
-                .map(obs => (obs[field] || "").trim())
+            allRecords
+                .map(obs => String(obs[field] || "").trim())
                 .filter(Boolean)
         )].sort();
 
