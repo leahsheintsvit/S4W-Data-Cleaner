@@ -154,10 +154,10 @@
         <div class="notice">
             <strong>Staff form prototype</strong>
             <p>
-                This page is currently a local form preview.
-                It does not upload or publish information yet.
-                Staff authentication and secure submission
-                storage will be added before deployment.
+                This form allows S4W staff to prepare and preview flood
+                observations, including locations, descriptions, and photographs.
+                Submissions are not currently saved or published.Secure staff authentication
+                and publishing functionality are underdevelopment.
             </p>
         </div>
 
@@ -242,6 +242,12 @@
             <label for="sourceUrl">Supporting Source URL</label>
             <input type="url" id="sourceUrl" name="sourceUrl"
                    placeholder="https://...">
+            
+            <label for="verificationStatus">Observation Verification Status</label>
+            <select id="verificationStatus" name="verificationStatus" required>
+                <option value="pending">Pending verification</option>
+                <option value="approved">Verified by S4W staff</option>
+            </select>
 
             <label for="permissionStatus">Photo Publication Permission</label>
             <select id="permissionStatus" name="permissionStatus">
@@ -371,6 +377,15 @@ form.addEventListener("submit", function(event) {
     const data = new FormData(form);
     const photo = document.getElementById("photo").files[0];
     const permission = data.get("permissionStatus");
+    const verification = data.get("verificationStatus");
+    
+    addPreviewField(
+        result,
+        "Observation Verification Status",
+        verification === "approved"
+            ? "Verified by S4W staff"
+            : "Pending verification"
+    );
 
     result.replaceChildren();
 
@@ -445,7 +460,16 @@ form.addEventListener("submit", function(event) {
         permission === "approved"
             ? "Confirmed"
             : "Pending review"
+            
     );
+
+addPreviewField(
+    result,
+    "Observation Verification Status",
+    verification === "approved"
+        ? "Verified by S4W staff"
+        : "Pending verification"
+);
 
     const notice = document.createElement("div");
     notice.className = "notice";
@@ -462,6 +486,25 @@ form.addEventListener("submit", function(event) {
 
     notice.append(noticeTitle, noticeText);
     result.appendChild(notice);
+    
+    const readiness = document.createElement("p");
+
+    const permissionApproved = permission === "approved";
+    const verificationApproved = verification === "approved";
+
+    if (verificationApproved && permissionApproved) {
+        readiness.textContent =
+            "Publication checks selected: verification and " +
+            "photo permission are confirmed. This is still " +
+            "a preview and has not been published.";
+    } else {
+        readiness.textContent =
+            "Not ready for publication: verification and/or " +
+            "photo permission still require review.";
+    }
+
+    readiness.style.fontWeight = "bold";
+    result.appendChild(readiness);
 
     updateLocationMarker();
 
