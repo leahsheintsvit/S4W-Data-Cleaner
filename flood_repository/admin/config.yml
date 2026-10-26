@@ -2,8 +2,8 @@
 backend:
   name: github
   repo: rslezas/S4W-Data-Cleaner
-  branch: flood-repository-development
-
+  branch: groundwater-sql-analysis
+  
 media_folder: "flood_repository/media/observations"
 public_folder: "/S4W-Data-Cleaner/flood_repository/media/observations"
 
