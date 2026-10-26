@@ -194,9 +194,18 @@
                 <option value="approved">Permission confirmed</option>
             </select>
 
-            <button type="submit">
-                Preview Observation
-            </button>
+            
+<button type="submit">
+    Preview Observation
+</button>
+
+<p class="location-help">
+    Previewing does not save, upload, or publish
+    the observation. Only authorized S4W staff
+    will be able to publish records once the
+    secure publishing system is connected.
+</p>
+
 
         </form>
 
@@ -247,37 +256,166 @@ locationMap.on("click", function(event) {
         "Selected flood observation location"
     ).openPopup();
 });
-    const form = document.getElementById("observationForm");
-    const result = document.getElementById("result");
+    
+const form = document.getElementById("observationForm");
+const result = document.getElementById("result");
 
-    form.addEventListener("submit", function(event) {
-        event.preventDefault();
+function addPreviewField(container, label, value) {
+    const paragraph = document.createElement("p");
 
-        if (!form.reportValidity()) return;
+    const strong = document.createElement("strong");
+    strong.textContent = label + ": ";
 
-        const data = new FormData(form);
+    paragraph.appendChild(strong);
+    paragraph.appendChild(
+        document.createTextNode(value || "Not provided")
+    );
 
-        const eventName = data.get("eventName");
-        const river = data.get("river");
-        const location = data.get("location");
-        const date = data.get("date");
+    container.appendChild(paragraph);
+}
 
-        result.replaceChildren();
+function updateLocationMarker() {
+    const latitude = Number(latitudeInput.value);
+    const longitude = Number(longitudeInput.value);
 
-        const heading = document.createElement("h3");
-        heading.textContent = "Observation Preview";
+    if (
+        latitudeInput.value === "" ||
+        longitudeInput.value === "" ||
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude) ||
+        latitude < -90 || latitude > 90 ||
+        longitude < -180 || longitude > 180
+    ) {
+        return;
+    }
 
-        const message = document.createElement("p");
-        message.textContent =
-            eventName + " — " + river +
-            " River, " + location + " (" + date + ")";
+    const coordinates = [latitude, longitude];
 
-        const note = document.createElement("p");
-        note.textContent =
-            "Preview only. No observation or photograph has been uploaded.";
+    if (selectedLocationMarker) {
+        selectedLocationMarker.setLatLng(coordinates);
+    } else {
+        selectedLocationMarker = L.marker(coordinates)
+            .addTo(locationMap);
+    }
 
-        result.append(heading, message, note);
+    selectedLocationMarker.bindPopup(
+        "Selected flood observation location"
+    );
+
+    locationMap.setView(coordinates, 13);
+}
+
+latitudeInput.addEventListener("change", updateLocationMarker);
+longitudeInput.addEventListener("change", updateLocationMarker);
+
+form.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    if (!form.reportValidity()) return;
+
+    const data = new FormData(form);
+    const photo = document.getElementById("photo").files[0];
+    const permission = data.get("permissionStatus");
+
+    result.replaceChildren();
+
+    if (photo && photo.size > 10 * 1024 * 1024) {
+        result.textContent =
+            "Please select a photograph smaller than 10 MB.";
+        return;
+    }
+
+    if (
+        photo &&
+        !["image/jpeg", "image/png", "image/webp"]
+            .includes(photo.type)
+    ) {
+        result.textContent =
+            "Please select a JPEG, PNG, or WebP photograph.";
+        return;
+    }
+
+    if (photo && !String(data.get("photoCredit") || "").trim()) {
+        result.textContent =
+            "Please provide photographer/source credit for the photo.";
+        return;
+    }
+
+    const observationDate = String(data.get("date"));
+
+    const today = new Date();
+    const localToday = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, "0"),
+        String(today.getDate()).padStart(2, "0")
+    ].join("-");
+
+    if (observationDate > localToday) {
+        result.textContent =
+            "Observation date cannot be in the future.";
+        return;
+    }
+
+    const heading = document.createElement("h2");
+    heading.textContent = "Flood Observation Preview";
+    result.appendChild(heading);
+
+    addPreviewField(result, "Event", data.get("eventName"));
+    addPreviewField(result, "Date", observationDate);
+    addPreviewField(result, "River", data.get("river"));
+    addPreviewField(result, "Watershed", data.get("watershed"));
+    addPreviewField(result, "Location", data.get("location"));
+    addPreviewField(result, "Latitude", data.get("latitude"));
+    addPreviewField(result, "Longitude", data.get("longitude"));
+    addPreviewField(result, "Description", data.get("description"));
+    addPreviewField(result, "Reported Impacts", data.get("impact"));
+    addPreviewField(
+        result,
+        "Photograph",
+        photo ? photo.name : "No photograph selected"
+    );
+    addPreviewField(
+        result,
+        "Photograph Credit",
+        data.get("photoCredit")
+    );
+    addPreviewField(
+        result,
+        "Source URL",
+        data.get("sourceUrl")
+    );
+    addPreviewField(
+        result,
+        "Photo Publication Permission",
+        permission === "approved"
+            ? "Confirmed"
+            : "Pending review"
+    );
+
+    const notice = document.createElement("div");
+    notice.className = "notice";
+
+    const noticeTitle = document.createElement("strong");
+    noticeTitle.textContent = "Preview only — not published";
+
+    const noticeText = document.createElement("p");
+    noticeText.textContent =
+        "This information has not been uploaded or saved. " +
+        "The final publishing system will require authorized " +
+        "staff access and verification before records " +
+        "are displayed on the public map.";
+
+    notice.append(noticeTitle, noticeText);
+    result.appendChild(notice);
+
+    updateLocationMarker();
+
+    result.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
     });
+});
+
 </script>
 
 </body>
