@@ -249,6 +249,18 @@
                 <option value="approved">Verified by S4W staff</option>
             </select>
 
+            <label for="publicationConsent">Observation Publication Consent</label>
+            <select id="publicationConsent" name="publicationConsent" required>
+                <option value="pending">Not yet confirmed</option>
+                <option value="approved">Publication authorized</option>
+            </select>
+
+            <p class="location-help">
+                Confirm that S4W has authorization to publish this
+                observation on the public flood repository.
+                Photograph permission is reviewed separately.
+            </p>
+
             <label for="permissionStatus">Photo Publication Permission</label>
             <select id="permissionStatus" name="permissionStatus">
                 <option value="pending">Pending review</option>
@@ -271,6 +283,20 @@
         </form>
 
         <div id="result" aria-live="polite"></div>
+
+        <div id="jsonPreviewContainer" style="display:none; margin-top:20px;">
+            <h2>Observation JSON Preview</h2>
+
+            <p class="location-help">
+                This is a preview of the observation data format.
+                No information has been saved, uploaded, or published.
+            </p>
+
+            <pre id="jsonPreview"
+                style="background:#f1f5f9; padding:15px;
+                        border-radius:8px; overflow-x:auto;
+                        white-space:pre-wrap; overflow-wrap:anywhere;"></pre>
+        </div>
 
     </div>
 </main>
@@ -378,14 +404,27 @@ form.addEventListener("submit", function(event) {
     const photo = document.getElementById("photo").files[0];
     const permission = data.get("permissionStatus");
     const verification = data.get("verificationStatus");
+    const publicationConsent = data.get("publicationConsent");
+
+    const observationJson = {
+        title: String(data.get("eventName") || "").trim(),
+        date: String(data.get("date") || ""),
+        river: String(data.get("river") || "").trim(),
+        watershed: String(data.get("watershed") || "").trim(),
+        location_name: String(data.get("location") || "").trim(),
+        latitude: Number(data.get("latitude")),
+        longitude: Number(data.get("longitude")),
+        description: String(data.get("description") || "").trim(),
+        impact: String(data.get("impact") || "").trim(),
+        photo_filename: "",
+        photo_credit: String(data.get("photoCredit") || "").trim(),
+        source_url: String(data.get("sourceUrl") || "").trim(),
+        verified: verification === "approved",
+        publication_consent: publicationConsent === "approved",
+        photo_permission: permission === "approved"
+    };
+
     
-    addPreviewField(
-        result,
-        "Observation Verification Status",
-        verification === "approved"
-            ? "Verified by S4W staff"
-            : "Pending verification"
-    );
 
     result.replaceChildren();
 
@@ -471,6 +510,13 @@ addPreviewField(
         : "Pending verification"
 );
 
+addPreviewField(
+    result,
+    "Observation Publication Consent",
+    publicationConsent === "approved"
+        ? "Publication authorized"
+        : "Not yet confirmed"
+);
     const notice = document.createElement("div");
     notice.className = "notice";
 
@@ -489,22 +535,44 @@ addPreviewField(
     
     const readiness = document.createElement("p");
 
-    const permissionApproved = permission === "approved";
-    const verificationApproved = verification === "approved";
+   
+const verificationApproved = verification === "approved";
+const publicationApproved = publicationConsent === "approved";
+const photoPermissionApproved =
+    !photo || permission === "approved";
 
-    if (verificationApproved && permissionApproved) {
-        readiness.textContent =
-            "Publication checks selected: verification and " +
-            "photo permission are confirmed. This is still " +
-            "a preview and has not been published.";
-    } else {
-        readiness.textContent =
-            "Not ready for publication: verification and/or " +
-            "photo permission still require review.";
-    }
-
+if (
+    verificationApproved &&
+    publicationApproved &&
+    photoPermissionApproved
+) {
+    readiness.textContent =
+        "All publication checks selected: observation verified, " +
+        "publication authorized, and photograph permission " +
+        "(if applicable) confirmed. This is still a preview " +
+        "and has not been published.";
+} else {
+    readiness.textContent =
+        "Not ready for publication: observation verification, " +
+        "publication authorization, or photograph permission " +
+        "still requires review.";
+}
     readiness.style.fontWeight = "bold";
     result.appendChild(readiness);
+
+const jsonPreviewContainer =
+    document.getElementById("jsonPreviewContainer");
+
+const jsonPreview =
+    document.getElementById("jsonPreview");
+
+jsonPreview.textContent = JSON.stringify(
+    observationJson,
+    null,
+    2
+);
+
+jsonPreviewContainer.style.display = "block";
 
     updateLocationMarker();
 
