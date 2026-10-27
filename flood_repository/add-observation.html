@@ -137,6 +137,7 @@
 }
 
     </style>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>    
 </head>
 
 <body>
@@ -243,29 +244,48 @@
             <input type="url" id="sourceUrl" name="sourceUrl"
                    placeholder="https://...">
             
-            <label for="verificationStatus">Observation Verification Status</label>
-            <select id="verificationStatus" name="verificationStatus" required>
-                <option value="pending">Pending verification</option>
-                <option value="approved">Verified by S4W staff</option>
-            </select>
+            
 
-            <label for="publicationConsent">Observation Publication Consent</label>
-            <select id="publicationConsent" name="publicationConsent" required>
-                <option value="pending">Not yet confirmed</option>
-                <option value="approved">Publication authorized</option>
-            </select>
+            <label for="submitterConsent">
+                <input
+                    type="checkbox"
+                    id="submitterConsent"
+                    name="submitterConsent"
+                    value="yes"
+                    required
+                    style="width:auto; margin-right:8px;"
+                >
+                I give S4W permission to review this observation
+                and publish the information I submit if S4W staff
+                approve it.
+            </label>
 
             <p class="location-help">
-                Confirm that S4W has authorization to publish this
-                observation on the public flood repository.
-                Photograph permission is reviewed separately.
+                Submitting an observation does not make it public.
+                S4W staff must review and approve the information
+                before it can appear on the flood map.
+                Photograph permission is handled separately.
             </p>
 
-            <label for="permissionStatus">Photo Publication Permission</label>
-            <select id="permissionStatus" name="permissionStatus">
-                <option value="pending">Pending review</option>
-                <option value="approved">Permission confirmed</option>
-            </select>
+            <label for="photoConsent">
+    <input
+        type="checkbox"
+        id="photoConsent"
+        name="photoConsent"
+        value="yes"
+        style="width:auto; margin-right:8px;"
+    >
+    I confirm that I own this photograph or have permission
+    to share it with S4W for possible public use.
+</label>
+
+<p class="location-help">
+    Check this box if you select a photograph.
+    Photographs are currently previewed only and are
+    not uploaded with the observation.
+    S4W staff will review photograph permissions
+    before any photograph is published.
+</p>
 
             
 <button type="submit">
@@ -279,7 +299,9 @@
     secure publishing system is connected.
 </p>
 
-
+        <div class="cf-turnstile"
+     data-sitekey="0x4AAAAAAFnuz9ngXbNuyrW6">
+        </div>
         </form>
 
         <div id="result" aria-live="polite"></div>
@@ -395,17 +417,21 @@ function updateLocationMarker() {
 latitudeInput.addEventListener("change", updateLocationMarker);
 longitudeInput.addEventListener("change", updateLocationMarker);
 
-form.addEventListener("submit", function(event) {
+form.addEventListener("submit", async function(event) {
     event.preventDefault();
 
     if (!form.reportValidity()) return;
 
     const data = new FormData(form);
     const photo = document.getElementById("photo").files[0];
-    const permission = data.get("permissionStatus");
-    const verification = data.get("verificationStatus");
-    const publicationConsent = data.get("publicationConsent");
-
+    const submitterConsent =
+        data.get("submitterConsent") === "yes";
+    
+    const photoConsent =
+        data.get("photoConsent") === "yes";
+    
+    const turnstileToken =
+        window.turnstile?.getResponse() || "";
     const observationJson = {
         title: String(data.get("eventName") || "").trim(),
         date: String(data.get("date") || ""),
@@ -419,14 +445,23 @@ form.addEventListener("submit", function(event) {
         photo_filename: "",
         photo_credit: String(data.get("photoCredit") || "").trim(),
         source_url: String(data.get("sourceUrl") || "").trim(),
-        verified: verification === "approved",
-        publication_consent: publicationConsent === "approved",
-        photo_permission: permission === "approved"
+        submitter_consent: submitterConsent,
+        photo_consent: photoConsent,
+        verified: false,
+        publication_consent: false,
+        photo_permission: false,
+        turnstile_token: turnstileToken
     };
 
     
 
     result.replaceChildren();
+   
+    if (photo && !photoConsent) {
+        result.textContent =
+                "Please confirm photograph permission or remove the photograph.";
+        return;
+    }
 
     if (photo && photo.size > 10 * 1024 * 1024) {
         result.textContent =
@@ -493,30 +528,32 @@ form.addEventListener("submit", function(event) {
         "Source URL",
         data.get("sourceUrl")
     );
+
     addPreviewField(
-        result,
-        "Photo Publication Permission",
-        permission === "approved"
-            ? "Confirmed"
-            : "Pending review"
-            
+    result,
+    "Photograph Permission",
+    photo
+        ? (photoConsent
+            ? "Permission confirmed by submitter"
+            : "Permission not confirmed")
+        : "No photograph selected"
     );
 
-addPreviewField(
-    result,
-    "Observation Verification Status",
-    verification === "approved"
-        ? "Verified by S4W staff"
-        : "Pending verification"
-);
+    addPreviewField(
+        result,
+        "Observation Verification Status",
+        "Pending S4W staff review"
+    );
 
-addPreviewField(
-    result,
-    "Observation Publication Consent",
-    publicationConsent === "approved"
-        ? "Publication authorized"
-        : "Not yet confirmed"
-);
+    addPreviewField(
+        result,
+        "Publication Status",
+        submitterConsent
+            ? "Submitter consent received; awaiting S4W approval"
+            : "Submitter consent not provided"
+    );
+
+
     const notice = document.createElement("div");
     notice.className = "notice";
 
@@ -536,27 +573,11 @@ addPreviewField(
     const readiness = document.createElement("p");
 
    
-const verificationApproved = verification === "approved";
-const publicationApproved = publicationConsent === "approved";
-const photoPermissionApproved =
-    !photo || permission === "approved";
-
-if (
-    verificationApproved &&
-    publicationApproved &&
-    photoPermissionApproved
-) {
-    readiness.textContent =
-        "All publication checks selected: observation verified, " +
-        "publication authorized, and photograph permission " +
-        "(if applicable) confirmed. This is still a preview " +
-        "and has not been published.";
-} else {
-    readiness.textContent =
-        "Not ready for publication: observation verification, " +
-        "publication authorization, or photograph permission " +
-        "still requires review.";
-}
+readiness.textContent =
+    "Pending S4W staff review. " +
+    "The submitter has provided publication consent, " +
+    "but this observation has not been verified or " +
+    "approved for public display.";
     readiness.style.fontWeight = "bold";
     result.appendChild(readiness);
 
@@ -574,6 +595,39 @@ jsonPreview.textContent = JSON.stringify(
 
 jsonPreviewContainer.style.display = "block";
 
+const submissionStatus = document.createElement("p");
+submissionStatus.textContent = "Checking submission...";
+result.appendChild(submissionStatus);
+
+try {
+    const response = await fetch(
+        "https://s4w-flood-submissions.leah-sheintsvit.workers.dev/submit",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(observationJson)
+        }
+    );
+
+    const responseData = await response.json();
+
+    if (response.ok && responseData.turnstile_verified === true) {
+        submissionStatus.textContent =
+            "Turnstile verification successful. " +
+            "Test completed — observation has NOT been saved.";
+    } else {
+        submissionStatus.textContent =
+            "Submission test failed: " +
+            (responseData.error ||
+             responseData.errors?.join(", ") ||
+             "Unknown error.");
+    }
+} catch (error) {
+    submissionStatus.textContent =
+        "Could not connect to the submission service.";
+}
     updateLocationMarker();
 
     result.scrollIntoView({
