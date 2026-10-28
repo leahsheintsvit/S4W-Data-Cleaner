@@ -552,6 +552,32 @@
                 });
 
                 watershedLayer.addTo(map);
+                
+                // Populate the watershed dropdown from GeoJSON
+                const watershedFilter =
+                    document.getElementById("watershedFilter");
+
+                const watershedNames = [
+                    ...new Set(
+                        (data.features || [])
+                            .map(feature =>
+                                feature.properties?.name ||
+                                feature.properties?.Name
+                            )
+                            .filter(Boolean)
+                    )
+                ].sort();
+
+                watershedFilter.innerHTML =
+                    '<option value="all">All Watersheds</option>';
+
+                watershedNames.forEach(name => {
+                    const option = document.createElement("option");
+                    option.value = name;
+                    option.textContent = name;
+                    watershedFilter.appendChild(option);
+                });
+
                 console.log("S4W watersheds loaded.");
             })
             .catch(error => console.error("Watershed loading error:", error));
