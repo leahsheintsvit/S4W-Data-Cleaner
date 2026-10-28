@@ -521,6 +521,41 @@
                     }
                 }).addTo(map);
 
+        // Load S4W watershed boundaries
+        fetch("data/watersheds/watersheds.geojson")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Could not load watershed GeoJSON");
+                }
+                return response.json();
+            })
+            .then(data => {
+                const watershedLayer = L.geoJSON(data, {
+                    style: {
+                        color: "#2563EB",
+                        weight: 2,
+                        opacity: 0.9,
+                        fillOpacity: 0
+                    },
+                    onEachFeature: function(feature, layer) {
+                        const name =
+                            feature.properties?.name ||
+                            feature.properties?.Name ||
+                            "Watershed";
+
+                        layer.bindPopup(
+                            "<strong>Watershed:</strong> " + name
+                        );
+                    }
+                });
+
+                watershedLayer.addTo(map);
+                console.log("S4W watershed boundaries loaded.");
+            })
+            .catch(error => {
+                console.error("Watershed loading error:", error);
+            });
+
                 console.log("Kathmandu Valley river layer loaded successfully");
             })
             .catch(error => {
