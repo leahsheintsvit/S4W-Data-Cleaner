@@ -560,10 +560,7 @@
                 const watershedNames = [
                     ...new Set(
                         (data.features || [])
-                            .map(feature =>
-                                feature.properties?.name ||
-                                feature.properties?.Name
-                            )
+                            .map(feature => feature.properties?.watershed)
                             .filter(Boolean)
                     )
                 ].sort();
