@@ -500,11 +500,12 @@
             }
         ).addTo(map);
         
+        
         // Load Kathmandu Valley rivers and streams from OpenStreetMap
         fetch("data/geojson/kathmandu_rivers.geojson")
             .then(response => {
                 if (!response.ok) {
-                    throw new Error("Could not load river GeoJSON file");
+                    throw new Error("Could not load river GeoJSON");
                 }
                 return response.json();
             })
@@ -517,9 +518,12 @@
                     },
                     onEachFeature: function(feature, layer) {
                         const name = feature.properties?.name || "Unnamed waterway";
-                        layer.bindPopup("<strong>River/Stream:</strong> " + name);
+                        layer.bindPopup("River/Stream: " + name);
                     }
                 }).addTo(map);
+                console.log("Kathmandu rivers loaded.");
+            })
+            .catch(error => console.error("River loading error:", error));
 
         // Load S4W watershed boundaries
         fetch("data/watersheds/watersheds.geojson")
@@ -543,27 +547,15 @@
                             feature.properties?.Name ||
                             "Watershed";
 
-                        layer.bindPopup(
-                            "<strong>Watershed:</strong> " + name
-                        );
+                        layer.bindPopup("Watershed: " + name);
                     }
                 });
 
                 watershedLayer.addTo(map);
-                console.log("S4W watershed boundaries loaded.");
+                console.log("S4W watersheds loaded.");
             })
-            .catch(error => {
-                console.error("Watershed loading error:", error);
-            });
-
-                console.log("Kathmandu Valley river layer loaded successfully");
-            })
-            .catch(error => {
-                console.error("Error loading river data:", error);
-            });
-        // Example location marker (NOT a verified flood event)
+            .catch(error => console.error("Watershed loading error:", error));
         
-
         // Load municipality boundaries from OpenStreetMap
         fetch("data/geojson/kathmandu_municipalities.geojson")
             .then(response => {
