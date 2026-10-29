@@ -640,8 +640,16 @@ function eventInWatershed(event, watershedName) {
             })
             .then(data => {
                 L.geoJSON(data, {
+                    pointToLayer: function(feature, latlng) {
+                        return L.circleMarker(latlng, {
+                            radius: 0,
+                            opacity: 0,
+                            fillOpacity: 0,
+                            interactive: false
+                        });
+                    },
                     style: {
-                        color: "#0077cc",
+                        color: "#8b5cf6",
                         weight: 2,
                         opacity: 0.8
                     },
