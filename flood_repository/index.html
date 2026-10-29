@@ -1429,6 +1429,11 @@ document.getElementById("riverFilter").addEventListener("change", function() {
 
             if (isSelected) {
                 layer.bringToFront();
+                layer.setStyle({
+                    color: "#f97316",
+                    weight: 10,
+                    opacity: 1
+                });
             }
         });
     }
