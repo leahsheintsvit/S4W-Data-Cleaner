@@ -1082,13 +1082,58 @@ const popupDescription = document.createElement("p");
 popupDescription.textContent = event.description;
 popup.appendChild(popupDescription);
 
-if (event.photoUrl) {
-    const popupPhoto = document.createElement("img");
-    popupPhoto.src = event.photoUrl;
-    popupPhoto.alt = "Flood event photograph";
-    popupPhoto.style.width = "100%";
-    popupPhoto.style.borderRadius = "6px";
-    popup.appendChild(popupPhoto);
+const photos = Array.isArray(event.photos) && event.photos.length
+    ? event.photos
+    : (event.photoUrl ? [event.photoUrl] : []);
+
+if (photos.length > 0) {
+    let photoIndex = 0;
+
+    const gallery = document.createElement("div");
+
+    const galleryImage = document.createElement("img");
+    galleryImage.alt = "Photograph associated with the flood event";
+    galleryImage.style.width = "100%";
+    galleryImage.style.maxHeight = "220px";
+    galleryImage.style.objectFit = "contain";
+    galleryImage.style.borderRadius = "6px";
+
+    const controls = document.createElement("div");
+    controls.style.display = "flex";
+    controls.style.justifyContent = "space-between";
+    controls.style.alignItems = "center";
+    controls.style.marginTop = "8px";
+
+    const previous = document.createElement("button");
+    previous.textContent = "← Previous";
+    previous.type = "button";
+
+    const counter = document.createElement("span");
+
+    const next = document.createElement("button");
+    next.textContent = "Next →";
+    next.type = "button";
+
+    function showPhoto() {
+        galleryImage.src = photos[photoIndex];
+        counter.textContent = (photoIndex + 1) + " / " + photos.length;
+    }
+
+    previous.addEventListener("click", function() {
+        photoIndex = (photoIndex - 1 + photos.length) % photos.length;
+        showPhoto();
+    });
+
+    next.addEventListener("click", function() {
+        photoIndex = (photoIndex + 1) % photos.length;
+        showPhoto();
+    });
+
+    controls.append(previous, counter, next);
+    gallery.append(galleryImage, controls);
+    popup.appendChild(gallery);
+
+    showPhoto();
 }
 
 const popupLocation = document.createElement("p");
