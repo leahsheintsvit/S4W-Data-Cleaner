@@ -647,7 +647,7 @@ function eventInWatershed(event, watershedName) {
                 return response.json();
             })
             .then(data => {
-                riverMapLayer = L.geoJSON(data, {
+                L.geoJSON(data, {
                     pointToLayer: function(feature, latlng) {
                         return L.circleMarker(latlng, {
                             radius: 0,
@@ -681,6 +681,13 @@ fetch("data/watersheds/rivers.geojson")
     })
     .then(data => {
         riverGeoJSON = data;
+        riverMapLayer = L.geoJSON(data, {
+            style: {
+                color: "#2563EB",
+                weight: 2,
+                opacity: 0.9
+            }
+        }).addTo(map);
 
         const riverFilter = document.getElementById("riverFilter");
 
@@ -1402,7 +1409,7 @@ document.getElementById("riverFilter").addEventListener("change", function() {
 
     if (riverMapLayer) {
         riverMapLayer.eachLayer(function(layer) {
-            const name = layer.feature?.properties?.river;
+            const name = layer.feature?.properties?.name;
             const isSelected = selected !== "all" && name === selected;
 
             layer.setStyle({
