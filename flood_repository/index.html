@@ -682,12 +682,16 @@ fetch("data/watersheds/rivers.geojson")
     .then(data => {
         riverGeoJSON = data;
         riverMapLayer = L.geoJSON(data, {
-            style: {
-                color: "#2563EB",
-                weight: 2,
-                opacity: 0.9
-            }
-        }).addTo(map);
+    style: {
+        color: "#2563EB",
+        weight: 2,
+        opacity: 0.9
+    },
+    onEachFeature: function(feature, layer) {
+        const name = feature.properties?.river || "Unknown river";
+        layer.bindPopup("River/Stream: " + name);
+    }
+}).addTo(map);
 
         const riverFilter = document.getElementById("riverFilter");
 
