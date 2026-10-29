@@ -734,7 +734,7 @@ fetch("data/watersheds/rivers.geojson")
                             feature.properties?.Name ||
                             "Watershed";
 
-                        layer.bindPopup("Watershed: " + name);
+                        layer.bindPopup("Watershed: " + (feature.properties?.watershed || "Unknown watershed"));
                     }
                 });
 
