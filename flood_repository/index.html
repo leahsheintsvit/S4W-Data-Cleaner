@@ -1199,17 +1199,63 @@ filteredEvents.forEach(function(event) {
 
     const description = document.createElement("p");
     description.textContent = event.description;
-    const eventPhoto = document.createElement("img");
+    const eventPhoto = document.createElement("div");
 
-    if (event.photoUrl) {
-        eventPhoto.src = event.photoUrl;
-        eventPhoto.alt = "Photograph associated with " + event.name;
-        eventPhoto.loading = "lazy";
-        eventPhoto.style.width = "100%";
-        eventPhoto.style.maxWidth = "450px";
-        eventPhoto.style.borderRadius = "8px";
-        eventPhoto.style.marginTop = "12px";
+const eventPhotos =
+    Array.isArray(event.photos) && event.photos.length
+        ? event.photos
+        : (event.photoUrl ? [event.photoUrl] : []);
+
+if (eventPhotos.length > 0) {
+    let photoIndex = 0;
+
+    const photo = document.createElement("img");
+    photo.alt = "Photograph associated with " + event.name;
+    photo.style.width = "100%";
+    photo.style.maxWidth = "450px";
+    photo.style.height = "300px";
+    photo.style.objectFit = "contain";
+    photo.style.borderRadius = "8px";
+
+    const controls = document.createElement("div");
+    controls.style.display = "flex";
+    controls.style.justifyContent = "space-between";
+    controls.style.alignItems = "center";
+    controls.style.maxWidth = "450px";
+    controls.style.marginTop = "10px";
+
+    const previous = document.createElement("button");
+    previous.textContent = "← Previous";
+    previous.type = "button";
+
+    const counter = document.createElement("span");
+
+    const next = document.createElement("button");
+    next.textContent = "Next →";
+    next.type = "button";
+
+    function showEventPhoto() {
+        photo.src = eventPhotos[photoIndex];
+        counter.textContent =
+            (photoIndex + 1) + " / " + eventPhotos.length;
     }
+
+    previous.addEventListener("click", function() {
+        photoIndex =
+            (photoIndex - 1 + eventPhotos.length) % eventPhotos.length;
+        showEventPhoto();
+    });
+
+    next.addEventListener("click", function() {
+        photoIndex = (photoIndex + 1) % eventPhotos.length;
+        showEventPhoto();
+    });
+
+    controls.append(previous, counter, next);
+    eventPhoto.append(photo, controls);
+
+    showEventPhoto();
+}
 
     const status = document.createElement("p");
     status.className = "event-status";
