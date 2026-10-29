@@ -1,7 +1,7 @@
 
 /* S4W Nepal - CSV Flood Observations */
 
-const floodObservationLayer = L.layerGroup().addTo(map);
+const floodObservationLayer = L.layerGroup();
 let approvedObservations = [];
 
 const watershedFilter = document.getElementById("watershedFilter");
