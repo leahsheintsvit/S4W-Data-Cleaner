@@ -995,6 +995,7 @@ function displayEvents() {
     // Select matching events
     
 const selectedWatershed = document.getElementById("watershedFilter").value;
+const selectedRiver = document.getElementById("riverFilter").value;
 const selectedLocation = document.getElementById("locationFilter").value;
 
 const selectedEvidence =
@@ -1004,6 +1005,9 @@ const selectedEvidence =
 const filteredEvents = floodEvents.filter(function(event) {
     const matchesWatershed =
         eventInWatershed(event, selectedWatershed);
+    const matchesRiver =
+        selectedRiver === "all" ||
+        nearestRiver(event) === selectedRiver;
 
     const matchesLocation =
         selectedLocation === "all" ||
@@ -1015,7 +1019,8 @@ const filteredEvents = floodEvents.filter(function(event) {
         selectedEvidence === "all" ||
         evidenceType === selectedEvidence;
 
-    return matchesWatershed && matchesLocation && matchesEvidence;
+    return matchesWatershed && matchesRiver &&
+       matchesLocation && matchesEvidence;
 });
 
 
