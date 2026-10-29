@@ -611,7 +611,7 @@ function eventInWatershed(event, watershedName) {
                 });
 
                 watershedLayer.addTo(map);
-                
+                displayEvents();
                 // Populate the watershed dropdown from GeoJSON
                 const watershedFilter =
                     document.getElementById("watershedFilter");
@@ -889,14 +889,14 @@ function displayEvents() {
 
     // Select matching events
     
-
-const selectedLocation =
-    document.getElementById("locationFilter").value;
+const selectedWatershed = document.getElementById("watershedFilter").value;
+const selectedLocation = document.getElementById("locationFilter").value;
 
 const selectedEvidence =
     document.getElementById("evidenceFilter").value;
 
 const filteredEvents = floodEvents.filter(function(event) {
+    eventInWatershed(event, selectedWatershed) &&
     const matchesLocation =
         selectedLocation === "all" ||
         event.location === selectedLocation;
@@ -1121,7 +1121,9 @@ fetch("./data/events.json")
 
 document.getElementById("locationFilter")
     .addEventListener("change", displayEvents);
-
+        
+document.getElementById("watershedFilter").addEventListener("change", displayEvents);
+        
 document.getElementById("evidenceFilter")
     .addEventListener("change", displayEvents);
 
