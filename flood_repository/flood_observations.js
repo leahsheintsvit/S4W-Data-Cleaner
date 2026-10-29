@@ -41,7 +41,6 @@ function populateObservationFilters() {
     }
 
     fillDropdown(watershedFilter, "watershed", "All Watersheds");
-    fillDropdown(riverFilter, "river", "All Rivers");
 }
 
 function filterObservations() {
