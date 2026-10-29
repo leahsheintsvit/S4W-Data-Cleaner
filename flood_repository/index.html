@@ -1409,7 +1409,7 @@ document.getElementById("riverFilter").addEventListener("change", function() {
 
     if (riverMapLayer) {
         riverMapLayer.eachLayer(function(layer) {
-            const name = layer.feature?.properties?.name;
+            const name = layer.feature?.properties?.river;
             const isSelected = selected !== "all" && name === selected;
 
             layer.setStyle({
