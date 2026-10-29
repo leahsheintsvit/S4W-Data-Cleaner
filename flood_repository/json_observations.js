@@ -1,7 +1,7 @@
 
 /* S4W Nepal - JSON Flood Observations */
 
-const jsonObservationLayer = L.layerGroup().addTo(map);
+const jsonObservationLayer = L.layerGroup();
 
 let approvedJsonObservations = [];
 
