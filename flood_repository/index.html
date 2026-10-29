@@ -1385,7 +1385,7 @@ document.getElementById("watershedFilter").addEventListener("change", function()
 
     if (watershedMapLayer) {
         watershedMapLayer.eachLayer(function(layer) {
-            const name = layer.feature?.properties?.name;
+            const name = layer.feature?.properties?.watershed;
             const isSelected = selected !== "all" && name === selected;
 
             layer.setStyle({
