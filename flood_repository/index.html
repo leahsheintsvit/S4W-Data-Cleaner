@@ -583,6 +583,37 @@ function eventInWatershed(event, watershedName) {
             .catch(error => console.error("River loading error:", error));
 
         // Load S4W watershed boundaries
+        
+fetch("data/watersheds/rivers.geojson")
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Could not load S4W river GeoJSON");
+        }
+        return response.json();
+    })
+    .then(data => {
+        const riverFilter = document.getElementById("riverFilter");
+
+        const riverNames = [...new Set(
+            (data.features || [])
+                .map(feature => feature.properties?.river)
+                .filter(Boolean)
+        )].sort();
+
+        riverFilter.innerHTML =
+            '<option value="all">All Rivers</option>';
+
+        riverNames.forEach(name => {
+            const option = document.createElement("option");
+            option.value = name;
+            option.textContent = name;
+            riverFilter.appendChild(option);
+        });
+
+        console.log("River dropdown populated:", riverNames.length);
+    })
+    .catch(error => console.error("River dropdown error:", error));
+        
         fetch("data/watersheds/watersheds.geojson")
             .then(response => {
                 if (!response.ok) {
