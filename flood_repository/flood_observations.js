@@ -40,7 +40,6 @@ function populateObservationFilters() {
             : "all";
     }
 
-    fillDropdown(watershedFilter, "watershed", "All Watersheds");
 }
 
 function filterObservations() {
