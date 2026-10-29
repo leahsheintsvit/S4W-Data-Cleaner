@@ -729,12 +729,9 @@ fetch("data/watersheds/rivers.geojson")
                         fillOpacity: 0
                     },
                     onEachFeature: function(feature, layer) {
-                        const name =
-                            feature.properties?.name ||
-                            feature.properties?.Name ||
-                            "Watershed";
+                        const name = feature.properties?.watershed || "Unknown watershed";
 
-                        layer.bindPopup("Watershed: " + (feature.properties?.watershed || "Unknown watershed"));
+                        layer.bindPopup("Watershed: " + name);
                     }
                 });
 
