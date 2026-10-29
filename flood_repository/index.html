@@ -489,6 +489,62 @@
     <script>
         // Create a map centered on Kathmandu
         let watershedGeoJSON = null;
+        
+function pointInRing(lon, lat, ring) {
+    let inside = false;
+
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const [xi, yi] = ring[i];
+        const [xj, yj] = ring[j];
+
+        const intersects =
+            (yi > lat) !== (yj > lat) &&
+            lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi;
+
+        if (intersects) inside = !inside;
+    }
+
+    return inside;
+}
+
+function pointInPolygon(lon, lat, polygon) {
+    if (!pointInRing(lon, lat, polygon[0])) return false;
+
+    // Exclude holes inside the polygon
+    for (let i = 1; i < polygon.length; i++) {
+        if (pointInRing(lon, lat, polygon[i])) return false;
+    }
+
+    return true;
+}
+
+function eventInWatershed(event, watershedName) {
+    if (watershedName === "all") return true;
+    if (!watershedGeoJSON) return false;
+
+    const lat = Number(event.latitude);
+    const lon = Number(event.longitude);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lon) ||
+        event.latitude == null || event.longitude == null) {
+        return false;
+    }
+
+    return watershedGeoJSON.features.some(feature => {
+        if (feature.properties?.watershed !== watershedName) return false;
+
+        const geometry = feature.geometry;
+        if (!geometry) return false;
+
+        const polygons = geometry.type === "Polygon"
+            ? [geometry.coordinates]
+            : geometry.type === "MultiPolygon"
+                ? geometry.coordinates
+                : [];
+
+        return polygons.some(polygon => pointInPolygon(lon, lat, polygon));
+    });
+}
         const map = L.map('map').setView(
             [27.7172, 85.3240], 11
         );
