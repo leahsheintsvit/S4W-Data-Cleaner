@@ -1396,8 +1396,17 @@ document.getElementById("watershedFilter").addEventListener("change", function()
                 fillOpacity: isSelected ? 0.18 : 0
             });
 
-            if (isSelected) {
-                layer.bringToFront();
+           if (isSelected) {
+               layer.bringToFront();
+
+               if (layer.getBounds) {
+                   map.fitBounds(layer.getBounds(), {
+                       padding: [50, 50],
+                       maxZoom: 13
+                   });
+               }
+           }
+            
             }
         });
     }
