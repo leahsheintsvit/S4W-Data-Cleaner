@@ -491,6 +491,77 @@
         let watershedGeoJSON = null;
         let riverGeoJSON = null;
         
+function distanceToRiverSegment(lat, lon, a, b) {
+    // Convert longitude/latitude to approximate local meters
+    const metersPerDegreeLat = 111320;
+    const metersPerDegreeLon =
+        111320 * Math.cos(lat * Math.PI / 180);
+
+    const ax = (a[0] - lon) * metersPerDegreeLon;
+    const ay = (a[1] - lat) * metersPerDegreeLat;
+    const bx = (b[0] - lon) * metersPerDegreeLon;
+    const by = (b[1] - lat) * metersPerDegreeLat;
+
+    const dx = bx - ax;
+    const dy = by - ay;
+    const lengthSquared = dx * dx + dy * dy;
+
+    if (lengthSquared === 0) {
+        return Math.hypot(ax, ay);
+    }
+
+    const t = Math.max(0, Math.min(1,
+        -(ax * dx + ay * dy) / lengthSquared
+    ));
+
+    return Math.hypot(ax + t * dx, ay + t * dy);
+}
+
+function nearestRiver(event) {
+    if (!riverGeoJSON || !Array.isArray(riverGeoJSON.features)) {
+        return null;
+    }
+
+    const lat = Number(event.latitude);
+    const lon = Number(event.longitude);
+
+    if (event.latitude == null || event.longitude == null ||
+        !Number.isFinite(lat) || !Number.isFinite(lon)) {
+        return null;
+    }
+
+    let closestName = null;
+    let closestDistance = Infinity;
+
+    riverGeoJSON.features.forEach(feature => {
+        const name = feature.properties?.river;
+        const geometry = feature.geometry;
+
+        if (!name || !geometry) return;
+
+        const lines = geometry.type === "LineString"
+            ? [geometry.coordinates]
+            : geometry.type === "MultiLineString"
+                ? geometry.coordinates
+                : [];
+
+        lines.forEach(line => {
+            for (let i = 1; i < line.length; i++) {
+                const distance = distanceToRiverSegment(
+                    lat, lon, line[i - 1], line[i]
+                );
+
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestName = name;
+                }
+            }
+        });
+    });
+
+    // Only assign a river within 500 meters
+    return closestDistance <= 500 ? closestName : null;
+}
 function pointInRing(lon, lat, ring) {
     let inside = false;
 
