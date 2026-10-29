@@ -1128,6 +1128,17 @@ filteredEvents.forEach(function(event) {
 
     const description = document.createElement("p");
     description.textContent = event.description;
+    const eventPhoto = document.createElement("img");
+
+    if (event.photoUrl) {
+        eventPhoto.src = event.photoUrl;
+        eventPhoto.alt = "Photograph associated with " + event.name;
+        eventPhoto.loading = "lazy";
+        eventPhoto.style.width = "100%";
+        eventPhoto.style.maxWidth = "450px";
+        eventPhoto.style.borderRadius = "8px";
+        eventPhoto.style.marginTop = "12px";
+    }
 
     const status = document.createElement("p");
     status.className = "event-status";
@@ -1177,6 +1188,7 @@ card.append(
     location,
     date,
     description,
+    eventPhoto,
     status,
     evidenceType,
     evidenceSource,
