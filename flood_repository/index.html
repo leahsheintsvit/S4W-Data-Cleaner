@@ -1070,18 +1070,50 @@ if (isRegionalReference) {
 
 marker.addTo(map);
 
-marker.bindPopup(
-    "<strong>" + event.name + "</strong>" +
-    "<br><strong>Location:</strong> " + event.location +
-    "<br><strong>Date:</strong> " + (event.date || "Not assigned") +
-    "<br><strong>Status:</strong> " + event.status +
-    "<br><strong>Map location:</strong> " +
-    (event.coordinateNote ||
-        "Demonstration marker — location not verified") +
-    (isRegionalReference
-        ? "<br><em>Illustrative reference only; not a flood extent.</em>"
-        : "")
-);
+
+const popup = document.createElement("div");
+popup.style.maxWidth = "300px";
+
+const popupTitle = document.createElement("h3");
+popupTitle.textContent = event.name;
+popup.appendChild(popupTitle);
+
+const popupDate = document.createElement("p");
+popupDate.textContent =
+    "Date: " + event.date +
+    (event.endDate ? " to " + event.endDate : "");
+popup.appendChild(popupDate);
+
+const popupDescription = document.createElement("p");
+popupDescription.textContent = event.description;
+popup.appendChild(popupDescription);
+
+if (event.photoUrl) {
+    const popupPhoto = document.createElement("img");
+    popupPhoto.src = event.photoUrl;
+    popupPhoto.alt = "Flood event photograph";
+    popupPhoto.style.width = "100%";
+    popupPhoto.style.borderRadius = "6px";
+    popup.appendChild(popupPhoto);
+}
+
+const popupLocation = document.createElement("p");
+popupLocation.textContent =
+    "Map location: " +
+    (event.coordinateNote || "Recorded event location");
+popup.appendChild(popupLocation);
+
+if (event.sourceUrl) {
+    const popupSource = document.createElement("a");
+    popupSource.href = event.sourceUrl;
+    popupSource.textContent = "View Supporting Report";
+    popupSource.target = "_blank";
+    popupSource.rel = "noopener noreferrer";
+    popup.appendChild(popupSource);
+}
+
+marker.bindPopup(popup);
+
 
 markers.push(marker);
 
