@@ -496,6 +496,7 @@ and supporting hydrological observations.
         // Create a map centered on Kathmandu
         let watershedGeoJSON = null;
         let watershedMapLayer = null;
+        let riverMapLayer = null;
         let riverGeoJSON = null;
         
 function distanceToRiverSegment(lat, lon, a, b) {
@@ -646,7 +647,7 @@ function eventInWatershed(event, watershedName) {
                 return response.json();
             })
             .then(data => {
-                L.geoJSON(data, {
+                riverMapLayer = L.geoJSON(data, {
                     pointToLayer: function(feature, latlng) {
                         return L.circleMarker(latlng, {
                             radius: 0,
@@ -1377,7 +1378,7 @@ document.getElementById("watershedFilter").addEventListener("change", function()
 
     if (watershedMapLayer) {
         watershedMapLayer.eachLayer(function(layer) {
-            const name = layer.feature?.properties?.watershed;
+            const name = layer.feature?.properties?.name;
             const isSelected = selected !== "all" && name === selected;
 
             layer.setStyle({
@@ -1396,7 +1397,28 @@ document.getElementById("watershedFilter").addEventListener("change", function()
 
     displayEvents();
 });
-document.getElementById("riverFilter").addEventListener("change", displayEvents);        
+document.getElementById("riverFilter").addEventListener("change", function() {
+    const selected = this.value;
+
+    if (riverMapLayer) {
+        riverMapLayer.eachLayer(function(layer) {
+            const name = layer.feature?.properties?.river;
+            const isSelected = selected !== "all" && name === selected;
+
+            layer.setStyle({
+                color: isSelected ? "#f97316" : "#2563EB",
+                weight: isSelected ? 6 : 2,
+                opacity: isSelected ? 1 : 0.9
+            });
+
+            if (isSelected) {
+                layer.bringToFront();
+            }
+        });
+    }
+
+    displayEvents();
+});
 document.getElementById("evidenceFilter")
     .addEventListener("change", displayEvents);
 
