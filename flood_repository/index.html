@@ -1051,22 +1051,8 @@ const isRegionalReference = Boolean(event.coordinateNote);
 
 let marker;
 
-if (isRegionalReference) {
-    // A reference circle, NOT a verified flood boundary
-    marker = L.circle(
-        [event.latitude, event.longitude],
-        {
-            radius: 3000,
-            color: "#155e75",
-            fillColor: "#155e75",
-            fillOpacity: 0.08,
-            weight: 2,
-            dashArray: "6, 6"
-        }
-    );
-} else {
-    marker = L.marker([event.latitude, event.longitude]);
-}
+// Display one clickable marker for the flood event
+marker = L.marker([event.latitude, event.longitude]);
 
 marker.addTo(map);
 
