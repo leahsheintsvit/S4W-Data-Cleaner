@@ -895,8 +895,11 @@ const selectedLocation = document.getElementById("locationFilter").value;
 const selectedEvidence =
     document.getElementById("evidenceFilter").value;
 
+
 const filteredEvents = floodEvents.filter(function(event) {
-    eventInWatershed(event, selectedWatershed) &&
+    const matchesWatershed =
+        eventInWatershed(event, selectedWatershed);
+
     const matchesLocation =
         selectedLocation === "all" ||
         event.location === selectedLocation;
@@ -907,8 +910,9 @@ const filteredEvents = floodEvents.filter(function(event) {
         selectedEvidence === "all" ||
         evidenceType === selectedEvidence;
 
-    return matchesLocation && matchesEvidence;
+    return matchesWatershed && matchesLocation && matchesEvidence;
 });
+
 
 
 // Update the timeline using the filtered events
