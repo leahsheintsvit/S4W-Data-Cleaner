@@ -495,6 +495,7 @@ and supporting hydrological observations.
     <script>
         // Create a map centered on Kathmandu
         let watershedGeoJSON = null;
+        let watershedMapLayer = null;
         let riverGeoJSON = null;
         
 function distanceToRiverSegment(lat, lon, a, b) {
@@ -712,7 +713,7 @@ fetch("data/watersheds/rivers.geojson")
             .then(data => {
                 watershedGeoJSON = data;
 
-                const watershedLayer = L.geoJSON(data, {
+                watershedMapLayer = L.geoJSON(data, {
                     style: {
                         color: "#2563EB",
                         weight: 2,
@@ -729,7 +730,7 @@ fetch("data/watersheds/rivers.geojson")
                     }
                 });
 
-                watershedLayer.addTo(map);
+                watershedMapLayer.addTo(map);
                 displayEvents();
                 // Populate the watershed dropdown from GeoJSON
                 const watershedFilter =
@@ -1371,7 +1372,30 @@ fetch("./data/events.json")
 document.getElementById("locationFilter")
     .addEventListener("change", displayEvents);
         
-document.getElementById("watershedFilter").addEventListener("change", displayEvents);
+document.getElementById("watershedFilter").addEventListener("change", function() {
+    const selected = this.value;
+
+    if (watershedMapLayer) {
+        watershedMapLayer.eachLayer(function(layer) {
+            const name = layer.feature?.properties?.watershed;
+            const isSelected = selected !== "all" && name === selected;
+
+            layer.setStyle({
+                color: isSelected ? "#f97316" : "#2563EB",
+                weight: isSelected ? 5 : 2,
+                opacity: isSelected ? 1 : 0.9,
+                fillColor: isSelected ? "#f97316" : "#2563EB",
+                fillOpacity: isSelected ? 0.18 : 0
+            });
+
+            if (isSelected) {
+                layer.bringToFront();
+            }
+        });
+    }
+
+    displayEvents();
+});
 document.getElementById("riverFilter").addEventListener("change", displayEvents);        
 document.getElementById("evidenceFilter")
     .addEventListener("change", displayEvents);
