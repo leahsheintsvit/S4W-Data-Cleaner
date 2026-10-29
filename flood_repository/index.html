@@ -489,6 +489,7 @@
     <script>
         // Create a map centered on Kathmandu
         let watershedGeoJSON = null;
+        let riverGeoJSON = null;
         
 function pointInRing(lon, lat, ring) {
     let inside = false;
@@ -592,6 +593,8 @@ fetch("data/watersheds/rivers.geojson")
         return response.json();
     })
     .then(data => {
+        riverGeoJSON = data;
+
         const riverFilter = document.getElementById("riverFilter");
 
         const riverNames = [...new Set(
